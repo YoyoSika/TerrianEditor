@@ -23,8 +23,6 @@ public class MeshEditorInspector : Editor
 		EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 		Color colorBuf = GUI.color;
 		GUI.color = mInstance.drawBegin ? Color.red : colorBuf;
-		GUILayout.Label("鼠标得在拖拽模式 快捷键Q 才能正常使用，点击Edit开始", GUI.skin.label);
-		EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 		if (GUILayout.Button("Edit", GUILayout.Height(48))) {
 			mInstance.drawBegin = !mInstance.drawBegin;
 		}
@@ -57,6 +55,10 @@ public class MeshEditorInspector : Editor
 
 	void OnSceneGUI()
 	{
+        if (mInstance.drawBegin) {
+            //让Scene View的鼠标选择被禁用
+            HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+        }
 		if (Event.current.type == EventType.mouseMove) {
 			SceneView.RepaintAll();
 			RaycastHit hitInfo;
@@ -80,9 +82,6 @@ public class MeshEditorInspector : Editor
 			if (mInstance.drawBegin && Event.current.button != 2 && isHitted && Event.current.type != EventType.MouseDrag)
 				Event.current.Use();
 			SceneView.RepaintAll();
-			//GUIUtility.hotControl =GUIUtility.GetControlID(FocusType.Passive);
-			// Don't forget to use the event
-			//Event.current.Use();
 		}
 
 
