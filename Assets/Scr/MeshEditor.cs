@@ -24,8 +24,6 @@ public class MeshEditor : MonoBehaviour
 	public float strenth = 0.2f;
 	[Range(0.01f, 10)]
 	public float strenthTex = 0.03f;
-	//[Range(0.05f,1.5f)]
-	//public float cdTime = 1;
 
 
 
@@ -84,12 +82,7 @@ public class MeshEditor : MonoBehaviour
 	}
 	public void OnMouseClicked(Vector3 point, bool isLeftClick)
 	{
-		//if (EditorApplication.timeSinceStartup - _lastCliked < cdTime) {
-		//	_lastCliked = EditorApplication.timeSinceStartup;
-		//	return;
-		//}
 		int upordown = isLeftClick ? 1 : -1;
-		//_lastCliked = EditorApplication.timeSinceStartup;
 		switch (editMode) {
 			case EditMode.terrian: {
 					//todo 法线也要跟着做变换
@@ -148,8 +141,33 @@ public class MeshEditor : MonoBehaviour
 
 		}
 	}
+    public void RebuildNormals(RenderData renderData)
+    {
+        if (renderData.verticles.Length > 0) {
+            //用叉积计算每个顶点相邻的四个三角形的法线，然后求法线均值
+            //              dot
+            //      dot   dot  dot
+            //              dot
+            var verts = renderData.verticles;
+            for (int i = 0; i < verts.Length; i++) {
+                //verts.
+            }
+        }
+    }
 
-	public void Fresh()
+    //计算三角形的法线
+    public Vector3 getTriNormal(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return Vector3.Cross(b - a, b - c).normalized;
+    }
+    //计算法线均值
+    public  Vector3 getAverage(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return ((a + b + c)/3).normalized;
+    }
+
+
+    public void Fresh()
 	{
 		if (mData.verticles.Length > 0) {
 			Mesh mesh = MFilter.sharedMesh;
@@ -196,18 +214,18 @@ public class MeshEditor : MonoBehaviour
 				data.normals[row * width + column] = normal;
 				data.uvs[row * width + column] = new Vector2( (float)column / (width - 1), (float)row / (height - 1));
 
-				//三角形
+				//三角形 渲染顺序与opengl对应，逆时针画三角形，视为正面
 				if ((row + 1) < height && (column + 1) < width) {
 					//三角形序号
 					int triStartIndex = row * (2 * (width - 1) * 3) + (2 * column * 3);// 1 0
-													   //与顶点序号对应
-					data.triangles[triStartIndex + 0] = (row + 1) * width + column;//左上
+					//与顶点序号对应
+					data.triangles[triStartIndex + 2] = (row + 1) * width + column;//左上
 					data.triangles[triStartIndex + 1] = row * width + column + 1;//右下
-					data.triangles[triStartIndex + 2] = row * width + column;//左下
+					data.triangles[triStartIndex + 0] = row * width + column;//左下
 
-					data.triangles[triStartIndex + 3] = (row + 1) * width + column;//左上
+					data.triangles[triStartIndex + 5] = (row + 1) * width + column;//左上
 					data.triangles[triStartIndex + 4] = (row + 1) * width + column + 1;//右上
-					data.triangles[triStartIndex + 5] = row * width + column + 1;//右下
+					data.triangles[triStartIndex + 3] = row * width + column + 1;//右下
 				}
 
 			}

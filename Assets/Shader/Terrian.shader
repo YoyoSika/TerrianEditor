@@ -1,4 +1,4 @@
-﻿Shader "ShaderPrac/Chapter9-Shadow" {
+﻿Shader "ShaderPrac/Terrian" {
 	Properties{
 		_Diffuse("Diffuse", Color) = (1,1,1,1)
 		_Gloss("Gloss", Range(1.0,10)) = 20
@@ -10,6 +10,7 @@
 		_Sand("Sand",2D) = "black"{}
 		_Snow("Snow",2D) = "black"{}
 		_TerrianPower("TerrianPower",Range(0,1)) = 0.5
+		_TerrianScale("TerrianScale",Vector) = (5,5,0,0)
 	}
 		SubShader{
 			Pass{
@@ -28,6 +29,8 @@
 				float _AmbientPower;
 				float _TerrianPower;
 				fixed4 _Ambient;
+				fixed4 _TerrianScale;
+
 				sampler2D _Terrian;
 				sampler2D _Grass;
 				sampler2D _Sand;
@@ -65,6 +68,8 @@
 
 					//刷地形贴图
 					fixed4 terrianColor = tex2D(_Terrian, a.uv.xy);
+					a.uv.xy = a.uv.xy * _TerrianScale.xy;
+					//todo 地形的边缘好像是有问题的
 					fixed3 terrianControl = terrianColor.yzw;
 					fixed all = terrianControl.x + terrianControl.y + terrianControl.z + 0.02;//避免没涂的地方全黑
 					terrianControl = fixed3(terrianControl.x / all, terrianControl.y / all, terrianControl.z / all);
