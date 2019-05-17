@@ -8342,7 +8342,7 @@ MonoBehaviour:
   brushRadius: 4.99
   strenth: 0.5
   strenthTex: 0.66
-  clickPoint: {x: 48.576935, y: -0.10544133, z: 30.985659}
+  clickPoint: {x: 59.80818, y: 2.0031545, z: 16.262068}
   drawBegin: 0
   editMode: 0
 --- !u!4 &102527088
@@ -8945,6 +8945,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TerrianScale: {r: 8, g: 4, b: 0, a: 0}
 --- !u!1 &1313994772
 GameObject:
   m_ObjectHideFlags: 0
