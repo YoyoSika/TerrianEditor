@@ -96,7 +96,8 @@ public class MeshEditor : MonoBehaviour
 							}
 						}
 					}
-					Fresh();
+                    RebuildNormals(mData);
+                    Fresh();
 					break;
 				}
 			case EditMode.grass: {
@@ -148,9 +149,26 @@ public class MeshEditor : MonoBehaviour
             //              dot
             //      dot   dot  dot
             //              dot
-            var verts = renderData.verticles;
-            for (int i = 0; i < verts.Length; i++) {
-                //verts.
+            //先计算所有三角形的面法线
+            Vector3 left = Vector3.one;
+            Vector3 right = Vector3.one;
+            Vector3 up = Vector3.one;
+            Vector3 down = Vector3.one;
+            Vector3 center = Vector3.one;
+            for (int column = 1; column < width - 1; column++) {
+                for (int row = 1; row < height - 1; row++) {
+                    center = renderData.verticles[row * width + column];
+                    left = renderData.verticles[row * width + column - 1];
+                    right = renderData.verticles[row * width + column + 1];
+                    up = renderData.verticles[(row + 1) * width + column];
+                    down = renderData.verticles[(row - 1) * width + column];
+
+                    Vector3 leftUp = getTriNormal(left,up,center);
+                    Vector3 rightUp = getTriNormal(up,right,center);
+                    Vector3 leftDown = getTriNormal(left,center,down);
+                    Vector3 rightDown = getTriNormal(center,right,down);
+                    renderData.normals[row * width + column] = getAverage(leftUp, rightUp, leftDown, rightDown);
+                }
             }
         }
     }
@@ -158,12 +176,12 @@ public class MeshEditor : MonoBehaviour
     //计算三角形的法线
     public Vector3 getTriNormal(Vector3 a, Vector3 b, Vector3 c)
     {
-        return Vector3.Cross(b - a, b - c).normalized;
+        return Vector3.Cross(a - b, c - b).normalized * -1;
     }
     //计算法线均值
-    public  Vector3 getAverage(Vector3 a, Vector3 b, Vector3 c)
+    public  Vector3 getAverage(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
     {
-        return ((a + b + c)/3).normalized;
+        return ((a + b + c+ d)/4).normalized;
     }
 
 
@@ -213,22 +231,20 @@ public class MeshEditor : MonoBehaviour
 				data.verticles[row * width + column] = new Vector3(column, 0, row);
 				data.normals[row * width + column] = normal;
 				data.uvs[row * width + column] = new Vector2( (float)column / (width - 1), (float)row / (height - 1));
+                //todo 三角形渲染方向问题 按道理应该逆时针为正面？
+                if ((row + 1) < height && (column + 1) < width) {
+                    //三角形序号
+                    int triStartIndex = row * (2 * (width - 1) * 3) + (2 * column * 3);// 1 0
+                                                                                       //与顶点序号对应
+                    data.triangles[triStartIndex + 0] = (row + 1) * width + column;//左上
+                    data.triangles[triStartIndex + 1] = row * width + column + 1;//右下
+                    data.triangles[triStartIndex + 2] = row * width + column;//左下
 
-				//三角形 渲染顺序与opengl对应，逆时针画三角形，视为正面
-				if ((row + 1) < height && (column + 1) < width) {
-					//三角形序号
-					int triStartIndex = row * (2 * (width - 1) * 3) + (2 * column * 3);// 1 0
-					//与顶点序号对应
-					data.triangles[triStartIndex + 2] = (row + 1) * width + column;//左上
-					data.triangles[triStartIndex + 1] = row * width + column + 1;//右下
-					data.triangles[triStartIndex + 0] = row * width + column;//左下
-
-					data.triangles[triStartIndex + 5] = (row + 1) * width + column;//左上
-					data.triangles[triStartIndex + 4] = (row + 1) * width + column + 1;//右上
-					data.triangles[triStartIndex + 3] = row * width + column + 1;//右下
-				}
-
-			}
+                    data.triangles[triStartIndex + 3] = (row + 1) * width + column;//左上
+                    data.triangles[triStartIndex + 4] = (row + 1) * width + column + 1;//右上
+                    data.triangles[triStartIndex + 5] = row * width + column + 1;//右下
+                }
+            }
 		}
 		return data;
 	}
