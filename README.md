@@ -7,3 +7,4 @@ r通道存储高度,gba通道存储三种地形贴图，
 
 
 支持将地形信息导入、导出为纹理贴图
+![image](https://github.com/YoyoSika/TerrianEditor/blob/master/Assets/Preview.png)
